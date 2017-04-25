@@ -1,0 +1,35 @@
+upstream ui_for_docker {
+    server 127.0.0.1:9000;
+}
+upstream ui {
+    server denwood.ovh:9000;
+}
+
+
+
+server {
+        listen 80;
+        server_name localhost;
+
+        access_log /var/log/nginx/uifd.access.log;
+        error_log /var/log/nginx/uifd.error.log;
+
+
+        # Temporary fix, see #97
+        rewrite ^(/fonts/glyphicons-halflings-regular\..*)$  $scheme://$server_name/dockerui$1 permanent;
+
+        location / {
+
+                auth_basic            "UI for Docker";
+                auth_basic_user_file  /etc/nginx/passwd/.htpasswd;
+
+                rewrite              /dockerui/(.*) /$1 break;
+                proxy_http_version   1.1;
+                proxy_set_header     Connection "";
+                proxy_redirect       off;
+                proxy_set_header     Host $host;
+                proxy_set_header     X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_pass http://denwood.ovh:9000;
+        }
+}
+
