@@ -7,12 +7,16 @@ services:
             - ui4docker
         ports:
             - "80:80"
+        restart: always
+        container_name : nginx_proxy 
         volumes:
             - ./code:/var/www/html
             - ./conf:/etc/nginx/
 
     ui4docker:
         image: uifd/ui-for-docker 
+        container_name : ui4docker
+        restart: always
 #        ports:
 #            - "8080:9000"
         volumes:
